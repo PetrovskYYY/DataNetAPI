@@ -1,0 +1,57 @@
+openapi: 3.0.1
+info:
+  title: DataNet API
+  description: API for access to DataNet server
+  version: '0.1'
+servers:
+  - url: 'http://localhost:7077'
+paths:
+  /user/login:
+    post:
+      description: Login request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                login:
+                  type: string
+            examples:
+              '0':
+                value: |-
+                  {
+                      "login":"admin",
+                      "password":"1234"
+                  }
+      responses:
+        '200':
+          description: Authentification success
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: string
+              examples: {}
+      servers:
+        - url: 'http://localhost:7077'
+    servers:
+      - url: 'http://localhost:7077'
+  /shutdown:
+    get:
+      description: Request to shutdown server
+      responses:
+        default:
+          description: Auto generated using Swagger Inspector
+      servers:
+        - url: 'http://localhost:7077'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://yourauthurl.com'
+          scopes:
+            scope_name: Enter your scopes here
