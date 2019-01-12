@@ -10,6 +10,8 @@ paths:
     post:
       description: Login request
       requestBody:
+        description: Login data
+        required: true
         content:
           application/json:
             schema:
@@ -34,6 +36,17 @@ paths:
               schema:
                 type: string
               examples: {}
+        '401':
+          description: Authentification failure
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: string
+              examples: {}
+        '403':
+          description: Authentification is successful, but user is not allowed to log in. 
+        '500':
+          description: Application error occurred during authentification process.
       servers:
         - url: 'http://localhost:7077'
     servers:
@@ -52,6 +65,6 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: 'http://yourauthurl.com'
+          authorizationUrl: 'http://localhost:7077'
           scopes:
             scope_name: Enter your scopes here
