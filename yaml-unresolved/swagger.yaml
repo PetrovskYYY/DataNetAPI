@@ -55,10 +55,11 @@ paths:
     get:
       description: Request to shutdown server
       responses:
-        default:
-          description: Auto generated using Swagger Inspector
+        '200':
+          description: Server shutdown process started
       servers:
         - url: 'http://localhost:7077'
+    
 components:
   securitySchemes:
     oauth2:
