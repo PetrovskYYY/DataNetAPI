@@ -5,9 +5,14 @@ info:
   version: '0.1'
 servers:
   - url: 'http://localhost:7077'
+tags:
+  - name: User
+  - name: Server
 paths:
   /user/login:
     post:
+      tags: 
+      - User
       description: Login request
       requestBody:
         description: Login data
@@ -51,15 +56,44 @@ paths:
         - url: 'http://localhost:7077'
     servers:
       - url: 'http://localhost:7077'
+
+  /user/{id}:
+    get:
+      tags: 
+      - User
+      description: Returns information about user based on active user access level.
+      security:
+      - Bearer: []
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          description: User unique id
+          
+      responses:
+        '200':
+          description: Request successfull
+          schema:
+            $ref: '#/definitions/UserData'
+        '403':
+          description: Access denied 
+        '500':
+          description: Server side error
+  
   /shutdown:
     get:
+      tags: 
+      - Server
       description: Request to shutdown server
       responses:
         '200':
           description: Server shutdown process started
       servers:
         - url: 'http://localhost:7077'
-    
+
+schemes:
+ - https
+ - http
 components:
   securitySchemes:
     oauth2:
@@ -69,3 +103,13 @@ components:
           authorizationUrl: 'http://localhost:7077'
           scopes:
             scope_name: Enter your scopes here
+            
+definitions:
+  UserData:
+    type: object
+    required:
+      - name
+      - role
+    properties:
+      id:
+        type: string
