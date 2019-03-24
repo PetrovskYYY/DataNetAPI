@@ -12,6 +12,35 @@ tags:
   - name: Event
   - name: Document
 paths:
+  /autosuggest/{dataClass}/{partialData}:
+    get:
+      description: Run autosuggest
+      parameters: 
+        - in: path
+          name: dataClass
+          required: true
+          description: User unique id
+          schema:
+            type: string
+        - in: path
+          name: partialData
+          required: true
+          description: User unique id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Authentification success
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: object
+              examples: {
+                "dataClass":"givenName",
+                "language":"ru",
+                "variants":[
+                  ]
+              }
   /user/login:
     post:
       tags: 
