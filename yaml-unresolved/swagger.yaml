@@ -8,6 +8,9 @@ servers:
 tags:
   - name: User
   - name: Server
+  - name: Person
+  - name: Event
+  - name: Document
 paths:
   /user/login:
     post:
@@ -93,8 +96,49 @@ paths:
       responses:
         '200':
           description: Server shutdown process started
+        '401':
+          description: Authentification failure. Only authentificated users can shutdown server (if they have adequate petmission).
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: object
+              examples: 
+                '0':
+                  value: |-
+                    {
+                      "message":"Please, authentificate first."
+                      
+                    }
+        '403':
+          description: Server shutdown is not allowed for current user
       servers:
         - url: 'http://localhost:7077'
+        
+  /person/{id}:
+    post:
+      tags: 
+      - Person
+      description: Requests basic person information
+      security:
+      - Bearer: []
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          description: Unique person id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonData'
+        '403':
+          description: Access denied 
+        '500':
+          description: Server side error
 components:
   securitySchemes:
     oauth2:
@@ -114,3 +158,54 @@ components:
       properties:
         id:
           type: string
+          description: Unique user name
+        displayName:
+          type: string
+          description: Name that can be used for human identification of user
+          #TODO: restrict access
+        login:
+          type: string
+          description: Login name of the user (should be revieled only to administrators)
+          #TODO: restrict access
+    PersonData:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        id:
+          type: string
+          description: Unique person id
+        givenName:
+          type: string
+          description: Person given name.
+          #TODO: restrict access
+        familyName:
+          type: string
+          description: Person family name.
+          #TODO: restrict access
+        father`sName:
+          type: string
+          description: Person father`s name.
+          #TODO: restrict access
+        dateOfBirth:
+          #description: Person`s date of birth.
+          $ref: '#/components/schemas/date'
+          #TODO: restrict access
+          
+    date:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        day:
+          type: integer
+          description: day in month (0 = unknown)
+        month:
+          type: integer
+          description: Month (0 - unknown; 1..12 = January..December)
+        year:
+          type: integer
+          description: Year (0 = unknown)
+          #TODO: restrict access
