@@ -1,0 +1,300 @@
+openapi: 3.0.1
+info:
+  title: DataNet API
+  description: API for access to DataNet server
+  version: '0.1'
+servers:
+  - url: 'http://localhost:7077'
+tags:
+  - name: User
+  - name: Server
+  - name: Person
+  - name: Event
+  - name: Document
+paths:
+  /autosuggest/{dataClass}/{partialData}:
+    get:
+      tags: 
+      - Server
+      description: Run autosuggest
+      parameters: 
+        - in: path
+          name: dataClass
+          required: true
+          description: User unique id
+          schema:
+            type: string
+        - in: path
+          name: partialData
+          required: true
+          description: User unique id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Autosuggest variants
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/AutosuggestResult'
+  /autosuggest:
+    post:
+      tags: 
+      - Server
+      description: Run autosuggest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dataClass:
+                  type: string
+                  example: "givenName"
+                partialData:
+                  type: string
+                  example: "Jo"
+            examples:
+              '0':
+                value: |-
+                  {
+                      "login":"admin",
+                      "password":"1234"
+                  }
+      responses:
+        '200':
+          description: Autosuggest variants
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/AutosuggestResult'
+  /user/auth:
+    post:
+      tags: 
+      - User
+      description: Login request
+      requestBody:
+        description: Login data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                login:
+                  type: string
+            examples:
+              '0':
+                value: |-
+                  {
+                      "login":"admin",
+                      "password":"1234"
+                  }
+      responses:
+        '200':
+          description: Authentification success
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/UserData'
+        '401':
+          description: Authentification failure
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: string
+              examples: {}
+        '403':
+          description: Authentification is successful, but user is not allowed to log in. 
+        '500':
+          description: Application error occurred during authentification process.
+      servers:
+        - url: 'http://localhost:7077'
+    servers:
+      - url: 'http://localhost:7077'
+
+  /user/{id}:
+    get:
+      tags: 
+      - User
+      description: Returns information about user based on active user access level.
+      security:
+      - Bearer: []
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          description: User unique id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserData'
+        '403':
+          description: Access denied 
+        '500':
+          description: Server side error
+  
+  /shutdown:
+    get:
+      security:
+      - Bearer: []
+      tags: 
+      - Server
+      description: Request to shutdown server
+      responses:
+        '200':
+          description: Server shutdown process started
+        '401':
+          description: Authentification failure. Only authentificated users can shutdown server (if they have adequate petmission).
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: object
+              examples: 
+                '0':
+                  value: |-
+                    {
+                      "message":"Please, authentificate first."
+                      
+                    }
+        '403':
+          description: Server shutdown is not allowed for current user
+      servers:
+        - url: 'http://localhost:7077'
+        
+  /person/create:
+    post:
+      tags:
+      - Person
+      description: Creates person information record
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Request successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonData'
+  /person/{id}:
+    post:
+      tags: 
+      - Person
+      description: Requests basic person information
+      security:
+      - Bearer: []
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          description: Unique person id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonData'
+        '403':
+          description: Access denied 
+        '500':
+          description: Server side error
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://localhost:7077'
+          scopes:
+            scope_name: Enter your scopes here
+            
+  schemas:
+    UserData:
+      type: object
+      required:
+        - id
+        - token
+      properties:
+        id:
+          type: string
+          description: Unique user name
+        token:
+          type: string
+          description: JWT token
+        displayName:
+          type: string
+          description: Name that can be used for human identification of user
+          #TODO: restrict access
+        login:
+          type: string
+          description: Login name of the user (should be revieled only to administrators)
+          #TODO: restrict access
+    PersonData:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Unique person id
+        givenName:
+          type: string
+          description: Person given name.
+          #TODO: restrict access
+        familyName:
+          type: string
+          description: Person family name.
+          #TODO: restrict access
+        father`sName:
+          type: string
+          description: Person father`s name.
+          #TODO: restrict access
+        dateOfBirth:
+          #description: Person`s date of birth.
+          $ref: '#/components/schemas/Date'
+          #TODO: restrict access
+          
+    Date:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        day:
+          type: integer
+          description: day in month (0 = unknown)
+        month:
+          type: integer
+          description: Month (0 - unknown; 1..12 = January..December)
+        year:
+          type: integer
+          description: Year (0 = unknown)
+          #TODO: restrict access
+          
+    AutosuggestResult:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        dataClass:
+          type: string
+          example: givenName
+        language: 
+          type: string
+          example: ru
+        variants: 
+          type: array
+          items:
+            type: string
+            example: ""
