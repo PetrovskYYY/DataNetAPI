@@ -83,8 +83,10 @@ paths:
               properties:
                 password:
                   type: string
+                  required: true
                 login:
                   type: string
+                  required: true
             examples:
               '0':
                 value: |-
@@ -110,10 +112,21 @@ paths:
           description: Authentification is successful, but user is not allowed to log in. 
         '500':
           description: Application error occurred during authentification process.
-      servers:
-        - url: 'http://localhost:7077'
-    servers:
-      - url: 'http://localhost:7077'
+
+  /user/logout:
+    get:
+      tags: 
+      - User
+      security:
+      - Bearer: []
+      description: Logout request
+     
+      responses:
+        '200':
+          description: Logout success
+          
+        '500':
+          description: Application error occurred during authentification process.
 
   /user/{id}:
     get:
@@ -297,4 +310,6 @@ components:
           type: array
           items:
             type: string
-            example: ""
+            example: 
+            - "Joe"
+            - "Jeseph"
